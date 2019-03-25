@@ -175,7 +175,7 @@ class vrset:
       self.ry=rset.ry
       self.fract=rset.fract
       self.goalFract = vd.targetVoltage/sv
-      ziLimit = vd.zenerWattage/vd.zenerVoltage                           # Allowable limit for zener current, which is never reached because rx resistor wattage is limiting factor.
+      ziLimit = vd.zenerWattage/vd.zenerVoltage                           # Allowable limit for zener current, never reached rx resistor fails 1st.
       vxLimit = pow( self.rx * vd.resistorWattage, 0.5)                   # limit to allowable voltage drop in Rx, after which Rx self destructs.
       self.prx = pow((1-self.fract)*sv,2.0)/self.rx                       # at design voltages.
       self.pry = pow(self.fract*sv,2.0)/self.ry                           # at design voltages.
@@ -185,7 +185,7 @@ class vrset:
         self.ziAtMaxVoltage = 0.0
 
    def __repr__(self):
-     return '\nrx: {}, ry: {}, f: {}, gf: {:5.4f}, prx: {}, pry: {}, vilim: {}, zim: {}'.format(self.rx,self.ry,self.fract,self.goalFract,  self.prx,self.pry,self.inputVoltageLimit, self.ziAtMaxVoltage)
+     return '\nrx: {}, ry: {}, f: {}, gf: {:5.4f}, prx: {:6.5f}, pry: {:6.5f}, vilim: {:4.2f}, zim: {:6.5f}'.format(self.rx,self.ry,self.fract,self.goalFract,  self.prx,self.pry,self.inputVoltageLimit, self.ziAtMaxVoltage)
 
 class rset:
    def __init__(self, vd, x, y):
