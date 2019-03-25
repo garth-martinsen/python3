@@ -1,5 +1,19 @@
-#file: ~/Programming/Python/VoltgeDivider
+#file: ~/Programming/Python3/VoltgeDivider/VoltageDivider.py
 import os
+
+def inputValue(s):
+   return float(s.split(":")[0])
+
+def inputList(s):
+   s = s.split(":")[0]
+   lst=[]
+   for i in s.split(','):
+     lst.append(int(i))
+   return lst
+
+def frmtf(num, w, p):
+   spec = '{:' + str(w) + '.' + str(p) +'f}'
+   return float(spec.format(num))
 
 class VoltageDivider:
    '''class VoltageDivider will design voltage dividers
@@ -11,14 +25,15 @@ sampled at the A2D, the number and voltage of the cells that make up the battery
    myResistors = [10,15,22,30,39,47,68,75,100,150,220,270,330,360,470,510,680,1000,2000,2200,3300,4700,5100,6800,10000,15000,22000,30000,47000,51000,68000,100000,220000,300000,470000,680000,1000000]
 
    def initialize(self):
+      print(os.getcwd()) 
       print('Enter input complete filename path:')
       fn = input()               #reads input file complete path.
       fh = open(fn)
       print(fh.readline())       #prints which input file was opened, no data yet.
-      self.batterySpecs(4.2,6)
-      self.zenerSpecs(3.3,0.5)
-      self.a2dSpecs(10,3.3)
-      self.resistorSet(self.myResistors, 0.250)
+      self.batterySpecs(fh)
+      self.zenerSpecs(fh)
+      self.a2dSpecs(fh)
+      self.resistorSet(fh)
       self.getSpecs()
       self.computeFractions()
       self.createDictd()
@@ -27,37 +42,30 @@ sampled at the A2D, the number and voltage of the cells that make up the battery
       self.designStages()
       self.getDesign()
 
-   def inputValue(s):
-      return float(s.split(":")[0])
-
    def createDictd(self):
       self.dictd = {0.0:[],0.1:[],0.2:[],0.3:[],0.4:[],0.5:[],0.6:[],0.7:[],0.8:[],0.9:[], 1.0:[]}
       
-   def resistorSet(self, rs, watt):
-      self.resistorSet=rs
-      self.resistorWattage = watt
+   def resistorSet(self, fh):
+      self.resistorWattage = inputValue(fh.readline())
+      self.resistorSet=inputList(fh.readline())
 
-   def batterySpecs(self, cv, nc):
+   def batterySpecs(self,fh ):
       self.stageVoltages=[]
-      self.cellVoltage=cv
-      self.numCells=nc
-      for i in range(0,nc+1):
+      self.cellVoltage=inputValue(fh.readline())
+      self.numCells   =int(inputValue(fh.readline()))
+      for i in range(0,self.numCells+1):
          self.stageVoltages.append(float('{:3.1f}'.format(i*self.cellVoltage)))
 
-   def frmtf(self, num, w, p):
-      spec = '{:' + str(w) + '.' + str(p) +'f}'
-      return float(spec.format(num))
+   def zenerSpecs( self, fh):
+      self.zenerVoltage=inputValue(fh.readline())
+      self.zenerWattage=inputValue(fh.readline())
+      self.ziLimitMa=frmtf(1000*self.zenerWattage/self.zenerVoltage, 3, 0)
 
-   def zenerSpecs( self, zv,zw):
-      self.zenerVoltage=zv
-      self.zenerWattage=zw
-      self.ziLimitMa=self.frmtf(1000*zw/zv, 3,0)
-
-   def a2dSpecs(self, bits, vl):
-      self.a2dBits=bits
-      self.a2dCounts=pow(2,bits)-1
-      self.a2dVoltage=vl
-      self.targetVoltage=vl/2.0
+   def a2dSpecs(self,fh ):
+      self.a2dBits=inputValue(fh.readline())
+      self.a2dCounts=pow(2,self.a2dBits)-1
+      self.a2dVoltage=inputValue(fh.readline())
+      self.targetVoltage=self.a2dVoltage/2.0
 
    def getSpecs(self):
       print("Battery: " + str(self.numCells) + "  cells at: " + str(self.cellVoltage) + " volts at each stage \n stageVoltages: "+ str(self.stageVoltages))
@@ -183,7 +191,7 @@ class rset:
    def __init__(self, vd, x, y):
       self.rx=x
       self.ry=y
-      self.fract=vd.frmtf(y/(x+y), 5,4)
+      self.fract=frmtf(y/(x+y), 5,4)
       self.vd=vd
 
    def __repr__(self):
