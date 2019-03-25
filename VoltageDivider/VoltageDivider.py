@@ -155,19 +155,6 @@ sampled at the A2D, the number and voltage of the cells that make up the battery
       for d in self.design:
         print(d)
 
-# rset sorters
-   def byRy(self,e):
-      return e.ry
-
-   def byRx(self,e):
-      return e.rx
-   
-   def byFract(self,e):
-      return e.fract
-
-   def byRxp(self,e):
-      return e.prx
-
 class vrset:
    def __init__(self, rset, sv):
       vd=rset.vd
