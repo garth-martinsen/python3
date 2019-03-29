@@ -63,7 +63,7 @@ sampled at the A2D, the number and voltage of the cells that make up the battery
 
    def a2dSpecs(self,fh ):
       self.a2dBits=inputValue(fh.readline())
-      self.a2dCounts=pow(2,self.a2dBits)-1
+      self.a2dCounts=int(pow(2,self.a2dBits)-1)
       self.a2dVoltage=inputValue(fh.readline())
       self.targetVoltage=self.a2dVoltage/2.0
 
@@ -71,7 +71,7 @@ sampled at the A2D, the number and voltage of the cells that make up the battery
       print("Battery: " + str(self.numCells) + "  cells at: " + str(self.cellVoltage) + " volts at each stage \n stageVoltages: "+ str(self.stageVoltages))
       print("Resistor wattage: " + str(self.resistorWattage) + " watts \n Resistor Set: " + str(self.resistorSet) )
       print("A2D bits: " + str(self.a2dBits) + " A2dCounts: " + str(self.a2dCounts) + " Aref Voltage: " + str(self.a2dVoltage) + " TargetVoltage at a2d when charged: " + str(self.targetVoltage) + " volts")
-      print("Zener diode capped at: " + str(self.zenerVoltage) + " volts  Power Limit: " + str(self.zenerWattage) + " watts  Current Limit: " + str(self.ziLimitMa) + " milliAmps" )    
+      print("Zener diode capped at: " + str(self.zenerVoltage) + " volts  Power Limit: " + str(self.zenerWattage) + " watts  Zener current Limit: " + str(self.ziLimitMa) + " milliAmps" )    
 
    def computeFractions(self):
       self.fractions=[]
@@ -166,10 +166,14 @@ class vrset:
       vxLimit = pow( self.rx * vd.resistorWattage, 0.5)                   # limit to allowable voltage drop in Rx, after which Rx self destructs.
       self.prx = pow((1-self.fract)*sv,2.0)/self.rx                       # at design voltages.
       self.pry = pow(self.fract*sv,2.0)/self.ry                           # at design voltages.
-      self.inputVoltageLimit = vxLimit/(1-self.fract)                     # limit to input Voltage for VoltageDivider. 
-      self.ziAtMaxVoltage = vxLimit/self.rx - vd.zenerVoltage/self.ry     # zener overflow current at input Voltage Limit: iz = ix - iy
+      ixLimit = vxLimit/self.rx                                           # current thru rx at max allowable voltage
+      vy = self.ry*ixLimit
+      if(vy  >= vd.zenerVoltage):                                         # voltage across ry is either 5.1 or less
+        vy= vd.zenerVoltage
+      self.inputVoltageLimit = vxLimit + vy                               # limit to input Voltage for VoltageDivider. 
+      self.ziAtMaxVoltage = vxLimit/self.rx - vy/self.ry                  # zener overflow current at input Voltage Limit: iz = ix - iy
       if(self.ziAtMaxVoltage<0.0):
-        self.ziAtMaxVoltage = 0.0
+        self.ziAtMaxVoltage = 0.0                                         # this prevents negative zener currents which will not occur.
 
    def __repr__(self):
      return '\nrx: {}, ry: {}, f: {}, gf: {:5.4f}, prx: {:6.5f}, pry: {:6.5f}, vilim: {:4.2f}, zim: {:6.5f}'.format(self.rx,self.ry,self.fract,self.goalFract,  self.prx,self.pry,self.inputVoltageLimit, self.ziAtMaxVoltage)
