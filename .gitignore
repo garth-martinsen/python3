@@ -1,0 +1,10 @@
+bin
+*.zip
+cv2-wrapper-0.1
+include
+lib
+*.cfg
+.DS_Store
+**/__pycache__/**
+VoltageDivider/__pycache__/VoltageDivider.cpython-37.pyc
+**/.idea
