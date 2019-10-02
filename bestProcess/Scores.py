@@ -1,12 +1,18 @@
-''' Scores class allows the capture of the ground digit, the detected digit, the result which contains n dictionaries with key=candidate digit and value=score for templated fit of each candidate digit.'''
-
 
 class Scores:
+    '''
+    Scores class allows the capture of the ground digit,
+    the detected digit, the result which contains n dictionaries
+    with key=candidate digit and value=score for templated fit
+    of each candidate digit.
+    '''
+
   def __init__(self, grnd):
-     self.ground=grnd
+     self.ground = grnd
      self.detected = -1
-     self.item=0
-     self.result = [{},{},{}]
+     self.item = 0
+     self.result = [{}, {}, {}]
+     self.cnt  = len(self.result)
 
   def addscore(self, count, digit, score):
      self.result[count].update({ digit: score})
@@ -37,8 +43,8 @@ class Scores:
 
   def detect(self):
       v=''
-      cnt = len(self.result)
-      for d in range(cnt):
+      self.cnt = len(self.result)
+      for d in range(self.cnt):
           h = max(self.result[d].values())
           for x, y in self.result[d].items():
               if y==h:

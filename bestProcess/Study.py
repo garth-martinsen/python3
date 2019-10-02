@@ -8,6 +8,8 @@ from Scores import Scores
 
 
 class Study:
+    '''Class used to perfect the cv2 operations to detect digits [0-9]
+       used to comprise numbers from 0-120 inches of depth''' 
     def __init__(self):
         print('__init__')
         self.rsz = (80, 100)
@@ -43,16 +45,19 @@ class Study:
         for i in range(dlt):
             rezinvt = cv.dilate(rezinvt, kernel)
             # self.createSubPlot(13, 'img', rezinvt)
-        cnt, hier = cv.findContours(rezinvt, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+        cnt, hier = cv.findContours(rezinvt, cv.RETR_EXTERNAL,
+                                    cv.CHAIN_APPROX_SIMPLE)
         cnt = contours.sort_contours(cnt, method="left-to-right")[0]
         num = 0
         locs = ''
-        i = 14  # first 13 imgs are of the reference digits. There can be as manay as 3 detected digits
+        # first 13 imgs are of the reference digits. 
+        i = 14  
 
         for c in cnt:
             x, y, w, h = cv.boundingRect(c)
             if w > 100 and h > 100:
-                iroi = rezinvt[y:y + h, x:x + w]  # note the order, y is first for roi clipping
+                # note the order: y,x for roi clipping
+                iroi = rezinvt[y:y + h, x:x + w]  
                 iroi = cv.resize(iroi, self.rsz)
                 digit = self.chooseBest(iroi, self.references, erd, dlt)
                 locs = locs + str(digit)
@@ -63,12 +68,17 @@ class Study:
                 i = i + 1
         print('img contours count: {:3d}'.format(num))
         lap = time.perf_counter()
-        print('imgProcess processing time: {:4.2f} seconds'.format(lap - start))
+        print(
+              'imgProcess processing time: {:4.2f} seconds'.format(lap - start)
+             )
         self.fig.show()
         return locs
 
     def chooseBest(self, img, refDigits, erd, dlt):
-        '''Given the reference digits and the single digit from th imput img, choose the best candidate.'''
+        '''
+        Given the reference digits and the single digit from the input img, 
+        choose the best candidate.
+        '''
         start = time.perf_counter()
         # initialize a list of template matching scores
 
@@ -80,7 +90,7 @@ class Study:
             result = cv.matchTemplate(img, digitROI, cv.TM_CCOEFF)
             (_, score, _, _) = cv.minMaxLoc(result)
             scores = Scores(self.number)
-            scores.result[scores.cnt][digit]= score
+            scores.result[scores.cnt][digit] = score
             # print('score: {:10.1f}'.format(score) )
             if score > high and score > 0:
                 high = score
