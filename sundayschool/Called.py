@@ -1,7 +1,7 @@
 class Called:
     def __init__(self, row):
-        '''Initialize a record with LName,FName,Age,Dates[]'''
-        print(row)
+        '''Initialize a record with name,org'''
+      #  print(row)
         self.name = row[0].strip()
         self.org = row[1].strip()
 
